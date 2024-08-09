@@ -8,7 +8,6 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
-import Paper from '@mui/material/Paper';
 import { visuallyHidden } from '@mui/utils';
 import { Data, EnhancedTableProps, HeadCell, Order } from './types';
 
@@ -113,7 +112,11 @@ const headCells: readonly HeadCell[] = [
 ];
 
 function EnhancedTableHead(props: EnhancedTableProps) {
-  const { order, orderBy, rowCount, onRequestSort } = props;
+  const { 
+	order, 
+	orderBy, 
+	// rowCount, 
+	onRequestSort } = props;
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
       onRequestSort(event, property);
   };
@@ -124,7 +127,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
         {headCells.map((headCell) => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? 'justify' : 'justify'}
+            align={headCell.numeric ? 'left' : 'left'}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel
@@ -156,16 +159,19 @@ export default function EnhancedTable() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data,) => {
+	console.log(event.target, 'handle sort');
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
 
   const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
+	console.log(event.target, 'clicked');
     alert(id + " selected")
   };
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (event: any, newPage: number) => {
+	console.log(event.target, 'page changed');
     setPage(newPage);
   };
 
@@ -187,61 +193,64 @@ export default function EnhancedTable() {
   );
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Paper sx={{ width: '100%', mb: 2 }}>
-        <TableContainer>
-          <Table
-            sx={{ minWidth: 750 }}
-            aria-labelledby="tableTitle"
-          >
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              onRequestSort={handleRequestSort}
-              rowCount={rows.length}
-            />
-            <TableBody>
-              {visibleRows.map((row, index) => {
-                const labelId = `enhanced-table-checkbox-${index}`;
+    <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <TableContainer>
+        <Table
+          sx={{ minWidth: 480 }}
+          aria-labelledby="tableTitle"
+        >
+          <EnhancedTableHead
+            order={order}
+            orderBy={orderBy}
+            onRequestSort={handleRequestSort}
+            rowCount={rows.length}
+          />
+          <TableBody>
+            {visibleRows.map((row) => {
+            //   const labelId = `enhanced-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    tabIndex={-1}
-                    key={row.id}
-                    sx={{ cursor: 'pointer' }}
-                  >
-                    <TableCell align="left">{row.name}</TableCell>
-                    <TableCell align="left">{row.language}</TableCell>
-                    <TableCell align="left">{row.forks}</TableCell>
-                    <TableCell align="left">{row.stars}</TableCell>
-                    <TableCell align="left">{row.updatedAt}</TableCell>
-                  </TableRow>
-                );
-              })}
-              {emptyRows > 0 && (
+              return (
                 <TableRow
-                  style={{
-                    height: 53 * emptyRows,
-                  }}
+                  hover
+                  onClick={(event) => handleClick(event, row.id)}
+                  tabIndex={-1}
+                  key={row.id}
+                  sx={{ 
+                	cursor: 'pointer', 
+					'& .MuiTableRow-hover::hover': {
+						backgroundColor: 'green',
+					}
+                   }}
                 >
-                  <TableCell colSpan={6} />
+                  <TableCell align="left">{row.name}</TableCell>
+                  <TableCell align="left">{row.language}</TableCell>
+                  <TableCell align="left">{row.forks}</TableCell>
+                  <TableCell align="left">{row.stars}</TableCell>
+                  <TableCell align="left">{row.updatedAt}</TableCell>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
-          component="div"
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Paper>
+              );
+            })}
+            {emptyRows > 0 && (
+              <TableRow
+                style={{
+                  height: 53 * emptyRows,
+                }}
+              >
+                <TableCell colSpan={6} />
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[5, 10, 25]}
+        component="div"
+        count={rows.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
     </Box>
   );
 }
