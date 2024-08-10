@@ -1,8 +1,12 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import EnhancedTable from '../../organisms/Table/ProjectsTable';
 import classes from './Search.module.scss';
+import { useSearchParams } from 'react-router-dom';
 
 export const Search = () => {
+	const [search, setSearch] = useSearchParams({ query: ''});
+	const q = search.get('query');
+
     return (
         <>
             <div className={classes.search}>
@@ -16,6 +20,11 @@ export const Search = () => {
                             borderRadius: '4px',
                             py: '1px',
                         }}
+						value={q}
+						onChange={e => setSearch(prev => {
+							prev.set('query', e.target.value);
+                            return prev;
+						})}
                     />
                 </div>
                 <div>

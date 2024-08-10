@@ -6,6 +6,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 const theme = createTheme({
     palette: {
@@ -82,10 +83,19 @@ const theme = createTheme({
     },
 });
 
+
+const router = createBrowserRouter([
+	{
+	  path: "/",
+	  element: <App />,
+	  errorElement: <div>Ошибка 404</div>
+	},
+  ]);
+
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <ThemeProvider theme={theme}>
-            <App />
+			<RouterProvider router={router} />
         </ThemeProvider>
     </StrictMode>,
 );
