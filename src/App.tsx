@@ -1,12 +1,12 @@
-import { Search } from './pages/Search/Search'
-import './test.scss'
+import { Search } from './pages/Search/Search';
+import './test.scss';
 
 function App() {
-  return (
-    <>
-      <Search/>
-    </>
-  )
+    return (
+        <>
+            <Search />
+        </>
+    );
 }
 
-export default App
+export default App;
