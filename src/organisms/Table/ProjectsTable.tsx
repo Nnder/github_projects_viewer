@@ -198,6 +198,7 @@ export default function EnhancedTable() {
         <Table
           sx={{ minWidth: 480 }}
           aria-labelledby="tableTitle"
+
         >
           <EnhancedTableHead
             order={order}
@@ -217,8 +218,9 @@ export default function EnhancedTable() {
                   key={row.id}
                   sx={{ 
                 	cursor: 'pointer', 
-					'& .MuiTableRow-hover::hover': {
-						backgroundColor: 'green',
+					'& .MuiTableRow-root:hover': {
+						backgroundColor: '',
+						// background: 'transparent'
 					}
                    }}
                 >

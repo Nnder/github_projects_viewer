@@ -13,9 +13,15 @@ const theme = createTheme({
     primary: {
       main: "#2196F3",
     },
-    // secondary: {
-    //   main: "#2196F3",
-    // },
+	background: {
+		default: '#F2F2F2',
+	},
+	action: {
+		hover: 'rgba(33, 150, 243, 0.1)'
+	},
+	// secondary: {
+	// 	main: "#F2F2F2",
+	// },
     // info: {
     //   main: "#2196F3",
     // },
@@ -31,10 +37,14 @@ const theme = createTheme({
     MuiTextField:{
       styleOverrides: {
         root: {
-          fontSize: 14,
-          '& .MuiInputBase-input::placeholder': {
-						fontStyle: 'italic',
-					}
+			fontSize: 14,
+			backgroundColor: 'palette.secondary.main',
+			'& .MuiInputBase-input::placeholder': {
+				fontStyle: 'italic',
+			},
+			"& .MuiOutlinedInput-notchedOutline": {
+				border: 'none',
+			}
         },
       }
     },
@@ -60,27 +70,16 @@ const theme = createTheme({
         },
       },
     },
-    MuiTableBody: {
+    MuiTableRow: {
       styleOverrides: {
-        root: {
-          ".MuiTableRow-hover": {
-            color: 'green',
+          // Even though there is a hover rule we have to override it here. Don't ask.
+          root: {
+              '&.MuiTableRow-hover:hover': {
+                  backgroundColor: 'palette.action.hover',
+              },
           },
-        },
       },
-    }
-    // MuiTableRow:{
-    //   styleOverrides: {
-    //     root: {
-    //       "&:hover": {
-    //         backgroundColor: "rgb(33, 150, 243, 0.4)",
-    //       },
-    //     },
-    //     hover: {
-    //       backgroundColor: "rgb(33, 150, 243, 0.4)",
-    //     }
-    //   },
-    // }
+  },
   },
 });
 
