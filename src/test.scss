@@ -1,5 +1,4 @@
-@use 'sass:math';
-$primary-color: red;
+$primary-color: #000000;
 
 body {
     color: $primary-color;
@@ -12,25 +11,26 @@ body {
     }
 }
 
-%message-shared {
-    border: 1px solid #ccc;
-    padding: 10px;
-    color: #333;
-}
+// @use 'sass:math';
+// %message-shared {
+//     border: 1px solid #ccc;
+//     padding: 10px;
+//     color: #333;
+// }
 
-@mixin theme($theme: DarkGray) {
-    background: $theme;
-    box-shadow: 0 0 1px rgba($theme, 0.25);
-    color: #fff;
-}
+// @mixin theme($theme: DarkGray) {
+//     background: $theme;
+//     box-shadow: 0 0 1px rgba($theme, 0.25);
+//     color: #fff;
+// }
 
-.info {
-    @include theme;
-    @extend %message-shared;
-}
-.alert {
-    @include theme($theme: DarkRed);
-}
-.success {
-    @include theme($theme: DarkGreen);
-}
+// .info {
+//     @include theme;
+//     @extend %message-shared;
+// }
+// .alert {
+//     @include theme($theme: DarkRed);
+// }
+// .success {
+//     @include theme($theme: DarkGreen);
+// }

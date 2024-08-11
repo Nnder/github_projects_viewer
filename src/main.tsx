@@ -83,19 +83,18 @@ const theme = createTheme({
     },
 });
 
-
 const router = createBrowserRouter([
-	{
-	  path: "/",
-	  element: <App />,
-	  errorElement: <div>Ошибка 404</div>
-	},
-  ]);
+    {
+        path: '/',
+        element: <App />,
+        errorElement: <div>Ошибка 404</div>,
+    },
+]);
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <ThemeProvider theme={theme}>
-			<RouterProvider router={router} />
+            <RouterProvider router={router} />
         </ThemeProvider>
     </StrictMode>,
 );

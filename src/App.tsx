@@ -1,4 +1,4 @@
-import { Search } from './pages/Search/Search';
+import { Search } from './pages/Search';
 import './test.scss';
 
 function App() {

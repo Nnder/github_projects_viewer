@@ -24,6 +24,7 @@ module.exports = {
             { allowConstantExport: true },
         ],
         'react/react-in-jsx-scope': 'off',
+        "react/jsx-uses-react": "off",
         'react/jsx-props-no-spreading': ['error', { custom: 'ignore' }],
         'unicorn/no-array-for-each': 'off',
         'import/no-extraneous-dependencies': 'off',

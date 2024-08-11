@@ -161,7 +161,7 @@ export default function EnhancedTable() {
     const [order, setOrder] = React.useState<Order>('asc');
     const [orderBy, setOrderBy] = React.useState<keyof Data>('name');
     const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -233,13 +233,7 @@ export default function EnhancedTable() {
                                     }
                                     tabIndex={-1}
                                     key={row.id}
-                                    sx={{
-                                        cursor: 'pointer',
-                                        '& .MuiTableRow-root:hover': {
-                                            backgroundColor: '',
-                                            // background: 'transparent'
-                                        },
-                                    }}
+                                    sx={{ cursor: 'pointer' }}
                                 >
                                     <TableCell align="left">
                                         {row.name}
@@ -272,7 +266,7 @@ export default function EnhancedTable() {
                 </Table>
             </TableContainer>
             <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
+                rowsPerPageOptions={[10, 25]}
                 component="div"
                 count={rows.length}
                 rowsPerPage={rowsPerPage}

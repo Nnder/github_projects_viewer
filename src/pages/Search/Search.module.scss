@@ -1,9 +1,23 @@
+$background: #f2f2f2;
+
 .search {
     padding: 24px;
     height: 42px;
     display: grid;
     grid-template-columns: 2fr 1fr;
     background-color: #00838f;
+
+    &__input {
+        background-color: $background;
+        border-radius: 4px;
+        padding: 1px 0px !important;
+    }
+}
+
+.table__wrapper {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    height: 100%;
 }
 
 .footer {
