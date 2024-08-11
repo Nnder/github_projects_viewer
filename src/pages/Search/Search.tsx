@@ -1,63 +1,59 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
-import EnhancedTable from '../../organisms/Table/ProjectsTable';
-import classes from './Search.module.scss';
 import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import EnhancedTable from '../../organisms/Table/ProjectsTable';
+import classes from './Search.module.scss';
 
-const token = import.meta.env.VITE_GITHUB_TOKEN;
+const token = import.meta.env.VITE_GITHUB_TOKEN as string;
 
-export const Search = () => {
+export function Search() {
     const [search, setSearch] = useSearchParams({ query: '' });
     const q = search.get('query');
 
-
     // https://docs.github.com/en/graphql/overview/explorer
 
-    async function getData(){
-        const query = `query($name: String!, $owner: String!, $after: String) {
-            repository(name: $name, owner: $owner) {
-              stargazers(first: 10, after: $after) {
-                edges {
-                  cursor
-                  node {
-                    login
-                  }
-                }
-                pageInfo {
-                  endCursor
-                  hasNextPage
-                }
-              }
-            }
-          }`
-          
-          let variables = {
-            name: "graphql-js",
-            owner: "graphql"
-          }
+    async function getData() {
+        const query = `query searchRepositoriesByName($name: String!) {
+                        search(query: $name, type: REPOSITORY, first: 5) {
+                        edges {
+                            node {
+                            ... on Repository {
+                                name
+                                owner {
+                                login
+                                }
+                                description
+                                url
+                                stargazerCount
+                                forkCount
+                                createdAt
+                                updatedAt
+                            }
+                            }
+                        }
+                        }
+                    }`;
 
-          
-          let response = await fetch('https://api.github.com/graphql', {
+        const variables = {
+            name: q,
+            // owner: "nnder"
+        };
+
+        const response = await fetch('https://api.github.com/graphql', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json;charset=utf-8',
-              "Authorization": `bearer ${token}`,
+                'Content-Type': 'application/json;charset=utf-8',
+                Authorization: `bearer ${token}`,
             },
-            body: JSON.stringify({query: query, variables: variables})
-          });
-          
-          
-          let result = await response.json();
-          console.log(result);
+            body: JSON.stringify({ query, variables }),
+        });
+
+        console.log(await response.json());
     }
 
-    useEffect(()=>{
-        getData()
-    },[])
-
-    
-
-    
+    useEffect(() => {
+        if (q) getData().catch((err) => console.log(err));
+    }, [q]);
 
     return (
         <>
@@ -103,4 +99,4 @@ export const Search = () => {
             {/* <div className={classes.footer}></div> */}
         </>
     );
-};
+}

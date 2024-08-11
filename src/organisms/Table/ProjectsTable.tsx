@@ -55,7 +55,7 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
     return 0;
 }
 
-function getComparator<Key extends keyof any>(
+function getComparator<Key extends keyof Data>(
     order: Order,
     orderBy: Key,
 ): (
@@ -175,11 +175,14 @@ export default function EnhancedTable() {
 
     const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
         console.log(event.target, 'clicked');
-        alert(id + ' selected');
+        alert(`${id} selected`);
     };
 
-    const handleChangePage = (event: any, newPage: number) => {
-        console.log(event.target, 'page changed');
+    const handleChangePage = (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
+        newPage: number,
+    ) => {
+        if (event) console.log(event.target, 'page changed');
         setPage(newPage);
     };
 
@@ -222,37 +225,27 @@ export default function EnhancedTable() {
                         rowCount={rows.length}
                     />
                     <TableBody>
-                        {visibleRows.map((row) => {
+                        {visibleRows.map((row) => (
                             //   const labelId = `enhanced-table-checkbox-${index}`;
 
-                            return (
-                                <TableRow
-                                    hover
-                                    onClick={(event) =>
-                                        handleClick(event, row.id)
-                                    }
-                                    tabIndex={-1}
-                                    key={row.id}
-                                    sx={{ cursor: 'pointer' }}
-                                >
-                                    <TableCell align="left">
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell align="left">
-                                        {row.language}
-                                    </TableCell>
-                                    <TableCell align="left">
-                                        {row.forks}
-                                    </TableCell>
-                                    <TableCell align="left">
-                                        {row.stars}
-                                    </TableCell>
-                                    <TableCell align="left">
-                                        {row.updatedAt}
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })}
+                            <TableRow
+                                hover
+                                onClick={(event) => handleClick(event, row.id)}
+                                tabIndex={-1}
+                                key={row.id}
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                <TableCell align="left">{row.name}</TableCell>
+                                <TableCell align="left">
+                                    {row.language}
+                                </TableCell>
+                                <TableCell align="left">{row.forks}</TableCell>
+                                <TableCell align="left">{row.stars}</TableCell>
+                                <TableCell align="left">
+                                    {row.updatedAt}
+                                </TableCell>
+                            </TableRow>
+                        ))}
                         {emptyRows > 0 && (
                             <TableRow
                                 style={{
