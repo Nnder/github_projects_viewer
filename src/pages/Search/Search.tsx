@@ -4,12 +4,10 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EnhancedTable from '../../organisms/Table/ProjectsTable';
 import classes from './Search.module.scss';
-import {
-    resetTable,
-    useGetRepositoriesByNameQuery,
-    setRepositoryCount,
-} from '../../store/redux';
+
 import { TableState } from '../../store/types';
+import { useGetRepositoriesByNameQuery } from '../../store/repository';
+import { resetTable, setRepositoryCount } from '../../store/tableSlice';
 
 export function Search() {
     const dispatch = useDispatch();
@@ -60,7 +58,7 @@ export function Search() {
     // через graphql не получилось точно искать по имени репозитория, выдает репозитории и по другим полям (description, url, ...)
 
     return (
-        <>
+        <div>
             <div className={classes.search}>
                 <TextField
                     size="small"
@@ -106,21 +104,14 @@ export function Search() {
                     </Box>
                 </Box>
             ) : (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        height: '100%',
-                    }}
-                >
-                    <Typography sx={{ fontSize: 48, color: '#4F4F4F' }}>
+                <div className={classes.welcome}>
+                    <Typography className={classes.welcome__text}>
                         Добро пожаловать
                     </Typography>
-                </Box>
+                </div>
             )}
 
-            {/* <div className={classes.footer}></div> */}
-        </>
+            <div className={classes.footer} />
+        </div>
     );
 }

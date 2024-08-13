@@ -11,13 +11,13 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { Data, EnhancedTableProps, HeadCell, ISeachProps } from './types';
+import { TableState } from '../../store/types';
 import {
-    resetTable,
     setOrder as setOrderStore,
+    resetTable,
     setPage,
     setRowsPerPage,
-} from '../../store/redux';
-import { TableState } from '../../store/types';
+} from '../../store/tableSlice';
 
 const headCells: readonly HeadCell[] = [
     {
@@ -132,6 +132,7 @@ export default function EnhancedTable({ search }: ISeachProps) {
         event: React.ChangeEvent<HTMLInputElement>,
     ) => {
         setRowsOnPage(parseInt(event.target.value, 10));
+        setPageCounter(0);
         dispatch(resetTable());
         dispatch(
             setRowsPerPage({ rowsPerPage: parseInt(event.target.value, 10) }),
@@ -150,7 +151,6 @@ export default function EnhancedTable({ search }: ISeachProps) {
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
-                justifyContent: 'space-between',
             }}
         >
             <TableContainer>
