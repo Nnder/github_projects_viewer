@@ -4,12 +4,12 @@ import { Box, Typography } from '@mui/material';
 import { Star } from '@mui/icons-material';
 import { useGetRepositoryByNameQuery } from '../../store/repository';
 
-export function Repository() {
+export function Repository({ owner, repo }: { owner: string; repo: string }) {
     const [search] = useSearchParams();
 
     const { data, isLoading, refetch } = useGetRepositoryByNameQuery({
-        owner: search.get('owner') ?? '',
-        name: search.get('repo') ?? '',
+        owner,
+        name: repo,
     });
 
     useEffect(() => {
@@ -71,6 +71,7 @@ export function Repository() {
                             {data?.data.repository.repositoryTopics.edges.map(
                                 (node) => (
                                     <Box
+                                        key={node.node.topic.name}
                                         sx={{
                                             background: 'rgba(0,0,0,0.08)',
                                             borderRadius: 10,

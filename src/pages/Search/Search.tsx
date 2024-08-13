@@ -100,10 +100,15 @@ export function Search() {
                             backgroundColor: 'background.default',
                         }}
                     >
-                        {search.get('owner') !== '' &&
+                        {search.get('owner') &&
+                        search.get('owner') !== '' &&
+                        search.get('repo') &&
                         search.get('repo') !== '' ? (
                             <Box>
-                                <Repository />
+                                <Repository
+                                    owner={search.get('owner')!}
+                                    repo={search.get('repo')!}
+                                />
                             </Box>
                         ) : (
                             <Box
