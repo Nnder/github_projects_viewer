@@ -8,14 +8,12 @@ import classes from './Search.module.scss';
 import { TableState } from '../../store/types';
 import { useGetRepositoriesByNameQuery } from '../../store/repository';
 import { resetTable, setRepositoryCount } from '../../store/tableSlice';
+import { Repository } from '../../organisms/Repository/Repository';
+// import { LazyTable } from '../../organisms/Table/Table.lazy';
 
 export function Search() {
     const dispatch = useDispatch();
-    const [search, setSearch] = useSearchParams({
-        query: '',
-        cursor: '',
-        selected: '',
-    });
+    const [search, setSearch] = useSearchParams();
 
     const [query, setQuery] = useState('');
 
@@ -28,6 +26,8 @@ export function Search() {
         count: rowsPerPage,
         after: cursor ?? null,
     });
+
+    console.log(data);
 
     if (data?.data?.search?.repositoryCount) {
         dispatch(
@@ -100,7 +100,25 @@ export function Search() {
                             backgroundColor: 'background.default',
                         }}
                     >
-                        about data
+                        {search.get('owner') !== '' &&
+                        search.get('repo') !== '' ? (
+                            <Box>
+                                <Repository />
+                            </Box>
+                        ) : (
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    height: '100%',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                }}
+                            >
+                                <Typography sx={{ color: '#4F4F4F' }}>
+                                    Выберите репозиторий
+                                </Typography>
+                            </Box>
+                        )}
                     </Box>
                 </Box>
             ) : (

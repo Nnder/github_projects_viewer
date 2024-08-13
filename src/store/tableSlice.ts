@@ -3,6 +3,7 @@ import {
     SetOrderPayload,
     SetPagePayload,
     SetRowsPerPagePayload,
+    SetSelectedRow,
     TableState,
 } from './types';
 
@@ -15,6 +16,7 @@ export const counterSlice = createSlice({
         order: 'desc',
         orderBy: 'name',
         cursor: '',
+        selected: '',
     } as TableState,
     reducers: {
         setRepositoryCount: (
@@ -40,6 +42,9 @@ export const counterSlice = createSlice({
         ) => {
             state.rowsPerPage = action.payload.rowsPerPage;
         },
+        selectRow: (state, action: PayloadAction<SetSelectedRow>) => {
+            state.selected = action.payload.selected;
+        },
         resetTable: (state) => {
             state.repositoryCount = 10;
             state.page = 0;
@@ -56,5 +61,6 @@ export const {
     setPage,
     setOrder,
     setRowsPerPage,
+    selectRow,
     resetTable,
 } = counterSlice.actions;

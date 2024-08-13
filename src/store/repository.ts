@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { IGitHubResponse, QueryParams } from './types';
+import { IGitHubResponse, IRepoResponse, QueryParams } from './types';
 
 const token = import.meta.env.VITE_GITHUB_TOKEN as string;
 
@@ -57,7 +57,48 @@ export const repositoryApi = createApi({
                 }),
             }),
         }),
+
+        getRepositoryByName: builder.query<
+            { data: { repository: IRepoResponse } },
+            { owner: string; name: string }
+        >({
+            query: ({ owner, name }: { owner: string; name: string }) => ({
+                url: 'https://api.github.com/graphql',
+                method: 'POST',
+                body: JSON.stringify({
+                    query: `query($owner: String!, $name: String!) {
+                          repository(owner: $owner, name: $name) {
+                            name
+                            stargazerCount
+                            url
+                            primaryLanguage {
+                              name
+                            }
+                            repositoryTopics(first: 5) {
+                            edges {
+                              node {
+                                topic {
+                                  name
+                                  }
+                                }
+                              }
+                            }
+                            licenseInfo {
+                              name
+                              spdxId
+                              url
+                            }
+                          }
+                        }`,
+                    variables: {
+                        owner,
+                        name,
+                    },
+                }),
+            }),
+        }),
     }),
 });
 
-export const { useGetRepositoriesByNameQuery } = repositoryApi;
+export const { useGetRepositoriesByNameQuery, useGetRepositoryByNameQuery } =
+    repositoryApi;

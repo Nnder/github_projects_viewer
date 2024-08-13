@@ -1,10 +1,11 @@
 export interface IRepository {
-    id: number;
+    id: string;
     name: string;
     description: string;
     stargazerCount: number;
     forkCount: number;
     pushedAt: string;
+    owner: { login: string };
     primaryLanguage: { name: string } | null;
 }
 
@@ -27,6 +28,7 @@ export interface TableState {
     order: 'asc' | 'desc';
     orderBy: string;
     cursor: string | null;
+    selected: string;
 }
 
 export interface SetPagePayload {
@@ -43,8 +45,29 @@ export interface SetRowsPerPagePayload {
     rowsPerPage: number;
 }
 
+export interface SetSelectedRow {
+    selected: string;
+}
+
 export interface QueryParams {
     name: string;
     count: number;
     after: string | null;
+}
+
+export interface ILicense {
+    name: string;
+    spdxId: string;
+    url: string;
+}
+
+export interface IRepoResponse {
+    name: string;
+    url: string;
+    stargazerCount: number;
+    primaryLanguage: { name: string } | null;
+    repositoryTopics: {
+        edges: { node: { topic: { name: string } } }[];
+    };
+    licenseInfo: ILicense | null;
 }

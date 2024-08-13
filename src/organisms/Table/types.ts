@@ -3,7 +3,7 @@ import { ISeachQuery } from '../../store/types';
 export type Order = 'asc' | 'desc';
 
 export interface Data {
-    id: number;
+    id: string;
     language: number;
     stars: number;
     forks: number;

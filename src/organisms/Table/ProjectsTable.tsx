@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
 import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { Data, EnhancedTableProps, HeadCell, ISeachProps } from './types';
 import { TableState } from '../../store/types';
 import {
@@ -17,6 +18,7 @@ import {
     resetTable,
     setPage,
     setRowsPerPage,
+    selectRow,
 } from '../../store/tableSlice';
 
 const headCells: readonly HeadCell[] = [
@@ -87,6 +89,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 }
 
 export default function EnhancedTable({ search }: ISeachProps) {
+    const [params, setParams] = useSearchParams();
     const dispatch = useDispatch();
     const [pageCounter, setPageCounter] = React.useState(0);
 
@@ -113,9 +116,14 @@ export default function EnhancedTable({ search }: ISeachProps) {
         );
     };
 
-    const handleClick = (event: React.MouseEvent<unknown>, id: number) => {
-        console.log(event.target, 'clicked');
-        alert(`${id} selected`);
+    const handleClick = (owner: string, repo: string) => {
+        dispatch(selectRow({ selected: repo }));
+        setParams((prev) => {
+            prev.set('owner', owner);
+            prev.set('repo', repo);
+            return prev;
+        });
+        console.log(params);
     };
 
     const handleChangePage = (
@@ -165,7 +173,9 @@ export default function EnhancedTable({ search }: ISeachProps) {
                         {edges.map(({ node }) => (
                             <TableRow
                                 hover
-                                onClick={(event) => handleClick(event, node.id)}
+                                onClick={() =>
+                                    handleClick(node.owner.login, node.name)
+                                }
                                 tabIndex={-1}
                                 key={node.id}
                                 sx={{ cursor: 'pointer' }}
