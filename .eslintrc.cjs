@@ -32,5 +32,6 @@ module.exports = {
         'no-alert': 'off',
         'import/prefer-default-export': 'off',
         'react-hooks/exhaustive-deps': 'off',
+        'no-param-reassign': 'off',
     },
 };

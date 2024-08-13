@@ -1,59 +1,63 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import EnhancedTable from '../../organisms/Table/ProjectsTable';
 import classes from './Search.module.scss';
-
-const token = import.meta.env.VITE_GITHUB_TOKEN as string;
+import {
+    resetTable,
+    useGetRepositoriesByNameQuery,
+    setRepositoryCount,
+} from '../../store/redux';
+import { TableState } from '../../store/types';
 
 export function Search() {
-    const [search, setSearch] = useSearchParams({ query: '' });
-    const q = search.get('query');
+    const dispatch = useDispatch();
+    const [search, setSearch] = useSearchParams({
+        query: '',
+        cursor: '',
+        selected: '',
+    });
 
-    // https://docs.github.com/en/graphql/overview/explorer
+    const [query, setQuery] = useState('');
 
-    async function getData() {
-        const query = `query searchRepositoriesByName($name: String!) {
-                        search(query: $name, type: REPOSITORY, first: 5) {
-                        edges {
-                            node {
-                            ... on Repository {
-                                name
-                                owner {
-                                login
-                                }
-                                description
-                                url
-                                stargazerCount
-                                forkCount
-                                createdAt
-                                updatedAt
-                            }
-                            }
-                        }
-                        }
-                    }`;
+    const { rowsPerPage, orderBy, order, cursor, page } = useSelector(
+        ({ repos }: { repos: TableState }) => repos,
+    );
 
-        const variables = {
-            name: q,
-            // owner: "nnder"
-        };
+    const { data, isLoading, refetch } = useGetRepositoriesByNameQuery({
+        name: `${query} in:name sort:${orderBy}-${order}` ?? '',
+        count: rowsPerPage,
+        after: cursor ?? null,
+    });
 
-        const response = await fetch('https://api.github.com/graphql', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json;charset=utf-8',
-                Authorization: `bearer ${token}`,
-            },
-            body: JSON.stringify({ query, variables }),
-        });
-
-        console.log(await response.json());
+    if (data?.data?.search?.repositoryCount) {
+        dispatch(
+            setRepositoryCount({
+                repositoryCount: data?.data?.search?.repositoryCount,
+            }),
+        );
     }
 
     useEffect(() => {
-        if (q) getData().catch((err) => console.log(err));
-    }, [q]);
+        refetch()
+            .then(() => console.log('data refetch successfully'))
+            .catch((e: Error) => console.log(`refetch error: ${e.message}`));
+    }, [rowsPerPage, orderBy, order, page]);
+
+    useEffect(() => {
+        setQuery(search.get('query') ?? '');
+        if (!query) {
+            dispatch(resetTable());
+        }
+    }, [search]);
+
+    // sort:forks-asc
+    // 1. sort:stars - сортировка по количеству звезд.
+    // 2. sort:forks - сортировка по количеству форков.
+    // 3. sort:updated - сортировка по дате последнего обновления.
+
+    // через graphql не получилось точно искать по имени репозитория, выдает репозитории и по другим полям (description, url, ...)
 
     return (
         <>
@@ -63,7 +67,7 @@ export function Search() {
                     fullWidth
                     placeholder="Введите поисковый запрос"
                     className={classes.search__input}
-                    value={q}
+                    value={query}
                     onChange={(e) =>
                         setSearch((prev) => {
                             prev.set('query', e.target.value);
@@ -77,24 +81,44 @@ export function Search() {
                     </Button>
                 </div>
             </div>
-            <Box className={classes.table__wrapper}>
-                <Box sx={{ p: 3 }}>
-                    <Typography
-                        variant="h2"
-                        sx={{ color: 'black', fontSize: [28, 36, 48] }}
+
+            {query !== '' ? (
+                <Box className={classes.table__wrapper}>
+                    <Box sx={{ p: 3 }}>
+                        <Typography
+                            variant="h2"
+                            sx={{ color: 'black', fontSize: [28, 36, 48] }}
+                        >
+                            Результаты поиска
+                        </Typography>
+                        {!isLoading && data ? (
+                            <EnhancedTable search={data.data.search} />
+                        ) : (
+                            'loading'
+                        )}
+                    </Box>
+                    <Box
+                        sx={{
+                            backgroundColor: 'background.default',
+                        }}
                     >
-                        Результаты поиска
-                    </Typography>
-                    <EnhancedTable />
+                        about data
+                    </Box>
                 </Box>
+            ) : (
                 <Box
                     sx={{
-                        backgroundColor: 'background.default',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        height: '100%',
                     }}
                 >
-                    about data
+                    <Typography sx={{ fontSize: 48, color: '#4F4F4F' }}>
+                        Добро пожаловать
+                    </Typography>
                 </Box>
-            </Box>
+            )}
 
             {/* <div className={classes.footer}></div> */}
         </>

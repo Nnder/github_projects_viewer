@@ -1,3 +1,5 @@
+import { ISeachQuery } from '../../store/types';
+
 export type Order = 'asc' | 'desc';
 
 export interface Data {
@@ -6,7 +8,7 @@ export interface Data {
     stars: number;
     forks: number;
     name: string;
-    updatedAt: number;
+    updated: number;
 }
 
 export interface HeadCell {
@@ -23,4 +25,8 @@ export interface EnhancedTableProps {
     order: Order;
     orderBy: string;
     rowCount: number;
+}
+
+export interface ISeachProps {
+    search: ISeachQuery;
 }
