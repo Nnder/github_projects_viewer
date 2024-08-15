@@ -13,9 +13,6 @@ import {
     setTable,
 } from '../../store/tableSlice';
 import { LazyRepository } from '../../organisms/Repository/Table.lazy';
-// import { LazyTable } from '../../organisms/Table/Table.lazy';
-// import { Repository } from '../../organisms/Repository/Repository';
-// import { LazyTable } from '../../organisms/Table/Table.lazy';
 
 export function Search() {
     const dispatch = useDispatch();
@@ -28,8 +25,7 @@ export function Search() {
         ({ repos }: { repos: TableState }) => repos,
     );
 
-    const rowsPerPageParam = search.get('rows');
-
+    // получаю данные из параметров
     useEffect(() => {
         dispatch(
             setTable({
@@ -49,13 +45,8 @@ export function Search() {
         );
     }, []);
 
-    const count =
-        after === before || !!after
-            ? (rowsPerPage ?? parseInt(rowsPerPageParam!))
-            : null;
-    const last = before ? (rowsPerPage ?? parseInt(rowsPerPageParam!)) : null;
-
-    console.log(!!count || last === null ? rowsPerPage : null);
+    const count = after === before || !!after ? rowsPerPage : null;
+    const last = before ? rowsPerPage : null;
 
     const { data, isLoading, refetch } = useGetRepositoriesByNameQuery({
         name:
@@ -67,28 +58,30 @@ export function Search() {
         after: !!after || after === before ? after : null,
         before: before || null,
         last,
+        page: (!!count || last === null ? rowsPerPage : null) ? 'next' : 'prev',
     });
 
-    useEffect(() => {
-        if (data?.data?.search?.repositoryCount) {
-            dispatch(
-                setRepositoryCount({
-                    repositoryCount: data?.data?.search?.repositoryCount,
-                }),
-            );
-        }
-    }, [data]);
-
+    // при изменении параметров таблицы делаем новый запрос и обновляем кол-во репозиториев
     useEffect(() => {
         if (query) {
             refetch()
-                .then(() => console.log('data refetch successfully'))
+                .then((newData) => {
+                    console.log('data refetch successfully');
+                    dispatch(
+                        setRepositoryCount({
+                            repositoryCount:
+                                newData?.data?.data?.search?.repositoryCount ||
+                                0,
+                        }),
+                    );
+                })
                 .catch((e: Error) =>
                     console.log(`refetch error: ${e.message}`),
                 );
         }
     }, [rowsPerPage, orderBy, order, page, after, before]);
 
+    // при новом поиске очищаем старые параметры, проверяем есть ли имя репозитория и делаем запрос
     const handleClick = () => {
         setSearch((prev) => {
             prev.set('query', inputData);
@@ -137,6 +130,7 @@ export function Search() {
                     onChange={(e) => {
                         setInputData(e.target.value || '');
                     }}
+                    // добавил отправление на по Enter для удобства
                     onKeyDown={(e) => e.key === 'Enter' && handleClick()}
                 />
                 <div>
@@ -161,10 +155,8 @@ export function Search() {
                             Результаты поиска
                         </Typography>
                         {!isLoading && data ? (
-                            // <Suspense>
                             <EnhancedTable search={data.data.search} />
                         ) : (
-                            // </Suspense>
                             'loading'
                         )}
                     </Box>

@@ -1,5 +1,6 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
 import {
+    SetCursorPayload,
     SetOrderPayload,
     SetPagePayload,
     SetRowsPerPagePayload,
@@ -38,10 +39,7 @@ export const counterSlice = createSlice({
         ) => {
             state.repositoryCount = action.payload.repositoryCount;
         },
-        setCursor: (
-            state,
-            action: PayloadAction<{ after: string; before: string }>,
-        ) => {
+        setCursor: (state, action: PayloadAction<SetCursorPayload>) => {
             state.after = action.payload.after;
             state.before = action.payload.before;
         },

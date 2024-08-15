@@ -106,6 +106,7 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
     // 2. sort:forks - сортировка по количеству форков.
     // 3. sort:updated - сортировка по дате последнего обновления.
 
+    // при изменении сортировки, изменяю сортировку в параметрах и store
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
         property: keyof Data,
@@ -123,6 +124,7 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
         setParams((prev) => {
             prev.set('order', isDesc ? 'asc' : 'desc');
             prev.set('orderBy', property);
+            prev.set('page', '0');
             return prev;
         });
     };
@@ -150,6 +152,7 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
                 pageInfo.hasNextPage &&
                 pageInfo.endCursor
             ) {
+                // передает cursor в параметры и store для вызова следующей страницы
                 setPageCounter(newPage);
                 setParams((prev) => {
                     prev.set('after', pageInfo.endCursor);
@@ -170,6 +173,7 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
                 pageInfo.hasPreviousPage &&
                 pageInfo.startCursor
             ) {
+                // передает cursor в параметры и store для вызова предыдущей страницы
                 setPageCounter(newPage);
                 setParams((prev) => {
                     prev.set('after', '');
@@ -186,7 +190,6 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
                     }),
                 );
             } else {
-                setPageCounter(0);
                 console.log('No more pages');
             }
         }

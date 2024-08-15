@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import { Search } from './pages/Search';
-import './test.scss';
+import './App.scss';
 
 function App() {
     return (

@@ -22,6 +22,11 @@ export interface SetTablePayload {
     before: Cursor;
 }
 
+export interface SetCursorPayload {
+    after: string;
+    before: string;
+}
+
 export interface SetPagePayload {
     page: number;
     after: Cursor;
@@ -47,6 +52,7 @@ export interface QueryParams {
     after: Cursor;
     before: Cursor;
     last: number | null;
+    page: 'next' | 'prev';
 }
 
 export interface ILicense {

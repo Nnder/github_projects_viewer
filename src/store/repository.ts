@@ -86,7 +86,7 @@ export const repositoryApi = createApi({
                 url: 'https://api.github.com/graphql',
                 method: 'POST',
                 body: JSON.stringify({
-                    query: q.count ? nextQuery : prevQuery,
+                    query: q.page === 'next' ? nextQuery : prevQuery,
                     variables: {
                         query: q.name,
                         first: q.count,
@@ -99,7 +99,9 @@ export const repositoryApi = createApi({
         }),
 
         getRepositoryByName: builder.query<
-            { data: { repository: IRepoResponse } },
+            {
+                data: { repository: IRepoResponse };
+            },
             SelectedRepo
         >({
             query: ({ owner, repo }: SelectedRepo) => ({
