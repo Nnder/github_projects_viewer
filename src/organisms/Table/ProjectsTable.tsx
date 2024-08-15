@@ -58,8 +58,6 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             onRequestSort(event, property);
         };
 
-    console.log(order, orderBy);
-
     return (
         <TableHead>
             <TableRow>
@@ -102,8 +100,6 @@ export default function EnhancedTable({ search }: { search: ISeachQuery }) {
     const [rowsOnPage, setRowsOnPage] = React.useState(rowsPerPage ?? 10);
 
     const { edges, pageInfo } = search;
-
-    console.log(orderBy, order);
 
     // sort:forks-asc
     // 1. sort:stars - сортировка по количеству звезд.

@@ -1,6 +1,6 @@
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EnhancedTable from '../../organisms/Table/ProjectsTable';
 import classes from './Search.module.scss';
@@ -12,7 +12,9 @@ import {
     setRepositoryCount,
     setTable,
 } from '../../store/tableSlice';
-import { Repository } from '../../organisms/Repository/Repository';
+import { LazyRepository } from '../../organisms/Repository/Table.lazy';
+// import { LazyTable } from '../../organisms/Table/Table.lazy';
+// import { Repository } from '../../organisms/Repository/Repository';
 // import { LazyTable } from '../../organisms/Table/Table.lazy';
 
 export function Search() {
@@ -48,18 +50,22 @@ export function Search() {
     }, []);
 
     const count =
-        after === before || after
+        after === before || !!after
             ? (rowsPerPage ?? parseInt(rowsPerPageParam!))
             : null;
     const last = before ? (rowsPerPage ?? parseInt(rowsPerPageParam!)) : null;
 
+    console.log(!!count || last === null ? rowsPerPage : null);
+
     const { data, isLoading, refetch } = useGetRepositoriesByNameQuery({
         name:
-            `${search.get('query') ?? ''} in:name sort:${search.get('orderBy') ?? orderBy}-${search.get('order') ?? order}` ??
-            '',
-        count: (count ?? count === last) ? rowsPerPage : 10,
-        after: (after === before ?? after) ? after : null,
-        before: before ?? null,
+            `${search.get('query') ?? ''} in:name sort:${
+                search.get('orderBy') ?? orderBy
+            }-${search.get('order') ?? order}` ?? '',
+
+        count: !!count || last === null ? rowsPerPage : null,
+        after: !!after || after === before ? after : null,
+        before: before || null,
         last,
     });
 
@@ -155,8 +161,10 @@ export function Search() {
                             Результаты поиска
                         </Typography>
                         {!isLoading && data ? (
+                            // <Suspense>
                             <EnhancedTable search={data.data.search} />
                         ) : (
+                            // </Suspense>
                             'loading'
                         )}
                     </Box>
@@ -170,10 +178,12 @@ export function Search() {
                         search.get('repo') &&
                         search.get('repo') !== '' ? (
                             <Box>
-                                <Repository
-                                    owner={search.get('owner')!}
-                                    repo={search.get('repo')!}
-                                />
+                                <Suspense>
+                                    <LazyRepository
+                                        owner={search.get('owner')!}
+                                        repo={search.get('repo')!}
+                                    />
+                                </Suspense>
                             </Box>
                         ) : (
                             <Box

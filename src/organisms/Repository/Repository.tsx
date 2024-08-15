@@ -8,7 +8,7 @@ import { SelectedRepo } from '../Table/types';
 
 // компонент репозитория
 // прокидываю в компоненты props которые подргружают данные о выбранном репозитории
-export function Repository({ owner, repo }: SelectedRepo) {
+function Repository({ owner, repo }: SelectedRepo) {
     const dispatch = useDispatch();
     const { data, isLoading } = useGetRepositoryByNameQuery({
         owner,
@@ -107,3 +107,5 @@ export function Repository({ owner, repo }: SelectedRepo) {
         </div>
     );
 }
+
+export default Repository;
