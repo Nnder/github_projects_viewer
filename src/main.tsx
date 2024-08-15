@@ -10,6 +10,8 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
+// font-family: 'Roboto', sans-serif;
+
 const theme = createTheme({
     palette: {
         primary: {
@@ -19,8 +21,14 @@ const theme = createTheme({
             default: '#F2F2F2',
         },
         action: {
-            hover: 'rgba(33, 150, 243, 0.1)',
+            hover: 'rgba(0, 0, 0, 0.1)',
+            active: 'rgba(33, 150, 243, 0.1)',
         },
+    },
+    typography: {
+        fontFamily: 'Roboto, sans-serif',
+        fontSize: 14,
+        fontWeightLight: 400,
     },
     components: {
         MuiButton: {
@@ -63,6 +71,9 @@ const theme = createTheme({
                 root: {
                     width: '20%',
                     p: 1,
+                    '&.MuiTableCell-body': {
+                        paddingLeft: '36px',
+                    },
                 },
             },
         },

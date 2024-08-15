@@ -11,8 +11,9 @@ import TableSortLabel from '@mui/material/TableSortLabel';
 import { visuallyHidden } from '@mui/utils';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
-import { Data, EnhancedTableProps, HeadCell, ISeachProps } from './types';
-import { TableState } from '../../store/types';
+import dayjs from 'dayjs';
+import { Data, EnhancedTableProps, HeadCell } from './types';
+import { ISeachQuery, TableState } from '../../store/types';
 import {
     setOrder as setOrderStore,
     resetTable,
@@ -57,6 +58,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             onRequestSort(event, property);
         };
 
+    console.log(order, orderBy);
+
     return (
         <TableHead>
             <TableRow>
@@ -88,18 +91,24 @@ function EnhancedTableHead(props: EnhancedTableProps) {
     );
 }
 
-export default function EnhancedTable({ search }: ISeachProps) {
+export default function EnhancedTable({ search }: { search: ISeachQuery }) {
     const [params, setParams] = useSearchParams();
     const dispatch = useDispatch();
-    const [pageCounter, setPageCounter] = React.useState(0);
 
-    const { rowsPerPage, orderBy, order, repositoryCount } = useSelector(
-        ({ repos }: { repos: TableState }) => repos,
-    );
+    const { rowsPerPage, orderBy, order, repositoryCount, selected, page } =
+        useSelector(({ repos }: { repos: TableState }) => repos);
 
+    const [pageCounter, setPageCounter] = React.useState(page);
     const [rowsOnPage, setRowsOnPage] = React.useState(rowsPerPage ?? 10);
 
     const { edges, pageInfo } = search;
+
+    console.log(orderBy, order);
+
+    // sort:forks-asc
+    // 1. sort:stars - сортировка по количеству звезд.
+    // 2. sort:forks - сортировка по количеству форков.
+    // 3. sort:updated - сортировка по дате последнего обновления.
 
     const handleRequestSort = (
         event: React.MouseEvent<unknown>,
@@ -107,17 +116,23 @@ export default function EnhancedTable({ search }: ISeachProps) {
     ) => {
         console.log(event.target, 'handle sort');
         const isDesc = orderBy === property && order === 'desc';
-        dispatch(resetTable());
+
+        setPageCounter(0);
         dispatch(
             setOrderStore({
                 order: isDesc ? 'asc' : 'desc',
                 orderBy: property,
             }),
         );
+        setParams((prev) => {
+            prev.set('order', isDesc ? 'asc' : 'desc');
+            prev.set('orderBy', property);
+            return prev;
+        });
     };
 
     const handleClick = (owner: string, repo: string) => {
-        dispatch(selectRow({ selected: repo }));
+        dispatch(selectRow({ selected: { repo, owner } }));
         setParams((prev) => {
             prev.set('owner', owner);
             prev.set('repo', repo);
@@ -126,25 +141,76 @@ export default function EnhancedTable({ search }: ISeachProps) {
         console.log(params);
     };
 
+    // Через Graphql получаю первый и последний cursor, по ним перехожу на следующею и предыдущею страницу.
+    // также записываю их в store
+
     const handleChangePage = (
         event: React.MouseEvent<HTMLButtonElement, MouseEvent> | null,
         newPage: number,
     ) => {
         if (event) {
-            dispatch(setPage({ page: newPage, cursor: pageInfo.endCursor }));
-            setPageCounter(newPage);
+            if (
+                newPage > pageCounter &&
+                pageInfo.hasNextPage &&
+                pageInfo.endCursor
+            ) {
+                setPageCounter(newPage);
+                setParams((prev) => {
+                    prev.set('after', pageInfo.endCursor);
+                    prev.set('before', '');
+                    prev.set('page', newPage.toString());
+                    return prev;
+                });
+
+                dispatch(
+                    setPage({
+                        page: newPage,
+                        after: pageInfo.endCursor,
+                        before: null,
+                    }),
+                );
+            } else if (
+                newPage < pageCounter &&
+                pageInfo.hasPreviousPage &&
+                pageInfo.startCursor
+            ) {
+                setPageCounter(newPage);
+                setParams((prev) => {
+                    prev.set('after', '');
+                    prev.set('before', pageInfo.startCursor ?? '');
+                    prev.set('page', newPage.toString());
+                    return prev;
+                });
+
+                dispatch(
+                    setPage({
+                        page: newPage,
+                        after: null,
+                        before: pageInfo.startCursor,
+                    }),
+                );
+            } else {
+                setPageCounter(0);
+                console.log('No more pages');
+            }
         }
     };
 
     const handleChangeRowsPerPage = (
         event: React.ChangeEvent<HTMLInputElement>,
     ) => {
-        setRowsOnPage(parseInt(event.target.value, 10));
+        const rows = parseInt(event.target.value, 10);
+        setRowsOnPage(rows);
         setPageCounter(0);
         dispatch(resetTable());
-        dispatch(
-            setRowsPerPage({ rowsPerPage: parseInt(event.target.value, 10) }),
-        );
+        dispatch(setRowsPerPage({ rowsPerPage: rows }));
+        setParams((prev) => {
+            prev.set('rows', rows.toString());
+            prev.set('after', '');
+            prev.set('before', '');
+            prev.set('page', '0');
+            return prev;
+        });
     };
 
     const emptyRows =
@@ -170,37 +236,49 @@ export default function EnhancedTable({ search }: ISeachProps) {
                         rowCount={edges.length}
                     />
                     <TableBody>
-                        {edges.map(({ node }) => (
-                            <TableRow
-                                hover
-                                onClick={() =>
-                                    handleClick(node.owner.login, node.name)
-                                }
-                                tabIndex={-1}
-                                key={node.id}
-                                sx={{ cursor: 'pointer' }}
-                            >
-                                <TableCell align="left">
-                                    {node.name.length > 30
-                                        ? `${node.name.slice(0, 28)}...`
-                                        : (node.name ?? '-')}
-                                </TableCell>
-                                <TableCell align="left">
-                                    {node.primaryLanguage
-                                        ? node.primaryLanguage.name
-                                        : '-'}
-                                </TableCell>
-                                <TableCell align="left">
-                                    {node.forkCount ?? '0'}
-                                </TableCell>
-                                <TableCell align="left">
-                                    {node.stargazerCount ?? '0'}
-                                </TableCell>
-                                <TableCell align="left">
-                                    {node.pushedAt ?? '-'}
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {edges.map(({ node }) => {
+                            const s =
+                                selected.owner === node.owner.login &&
+                                selected.repo === node.name;
+                            return (
+                                <TableRow
+                                    hover
+                                    onClick={() =>
+                                        handleClick(node.owner.login, node.name)
+                                    }
+                                    tabIndex={-1}
+                                    key={node.id}
+                                    sx={{
+                                        cursor: 'pointer',
+                                        backgroundColor: s
+                                            ? 'rgba(33, 150, 243, 0.1)'
+                                            : 'inherit',
+                                    }}
+                                >
+                                    <TableCell align="left">
+                                        {node.name.length > 30
+                                            ? `${node.name.slice(0, 28)}...`
+                                            : (node.name ?? '-')}
+                                    </TableCell>
+                                    <TableCell align="left">
+                                        {node.primaryLanguage
+                                            ? node.primaryLanguage.name
+                                            : '-'}
+                                    </TableCell>
+                                    <TableCell align="left">
+                                        {node.forkCount ?? '0'}
+                                    </TableCell>
+                                    <TableCell align="left">
+                                        {node.stargazerCount ?? '0'}
+                                    </TableCell>
+                                    <TableCell align="left">
+                                        {dayjs(node.pushedAt).format(
+                                            'DD.MM.YYYY',
+                                        ) ?? '-'}
+                                    </TableCell>
+                                </TableRow>
+                            );
+                        })}
                         {emptyRows > 0 && (
                             <TableRow
                                 style={{

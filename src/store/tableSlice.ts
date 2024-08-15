@@ -4,9 +4,11 @@ import {
     SetPagePayload,
     SetRowsPerPagePayload,
     SetSelectedRow,
+    SetTablePayload,
     TableState,
 } from './types';
 
+// store для таблицы
 export const counterSlice = createSlice({
     name: 'table',
     initialState: {
@@ -15,26 +17,43 @@ export const counterSlice = createSlice({
         rowsPerPage: 10,
         order: 'desc',
         orderBy: 'name',
-        cursor: '',
-        selected: '',
+        after: null,
+        before: null,
+        selected: { repo: '', owner: '' },
     } as TableState,
     reducers: {
+        setTable: (state, action: PayloadAction<SetTablePayload>) => {
+            state.rowsPerPage = action.payload.rowsPerPage;
+            state.page = action.payload.page;
+
+            state.order = action.payload.order;
+            state.orderBy = action.payload.orderBy;
+
+            state.after = action.payload.after;
+            state.before = action.payload.before;
+        },
         setRepositoryCount: (
             state,
             action: PayloadAction<{ repositoryCount: number }>,
         ) => {
             state.repositoryCount = action.payload.repositoryCount;
         },
-        setCursor: (state, action: PayloadAction<{ cursor: string }>) => {
-            state.cursor = action.payload.cursor;
+        setCursor: (
+            state,
+            action: PayloadAction<{ after: string; before: string }>,
+        ) => {
+            state.after = action.payload.after;
+            state.before = action.payload.before;
         },
         setPage: (state, action: PayloadAction<SetPagePayload>) => {
             state.page = action.payload.page;
-            state.cursor = action.payload.cursor;
+            state.after = action.payload.after;
+            state.before = action.payload.before;
         },
         setOrder: (state, action: PayloadAction<SetOrderPayload>) => {
             state.order = action.payload.order;
             state.orderBy = action.payload.orderBy;
+            state.page = 0;
         },
         setRowsPerPage: (
             state,
@@ -51,11 +70,14 @@ export const counterSlice = createSlice({
             state.rowsPerPage = 10;
             state.orderBy = 'name';
             state.order = 'desc';
+            state.after = null;
+            state.before = null;
         },
     },
 });
 
 export const {
+    setTable,
     setRepositoryCount,
     setCursor,
     setPage,

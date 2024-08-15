@@ -7,7 +7,11 @@ import classes from './Search.module.scss';
 
 import { TableState } from '../../store/types';
 import { useGetRepositoriesByNameQuery } from '../../store/repository';
-import { resetTable, setRepositoryCount } from '../../store/tableSlice';
+import {
+    resetTable,
+    setRepositoryCount,
+    setTable,
+} from '../../store/tableSlice';
 import { Repository } from '../../organisms/Repository/Repository';
 // import { LazyTable } from '../../organisms/Table/Table.lazy';
 
@@ -15,47 +19,105 @@ export function Search() {
     const dispatch = useDispatch();
     const [search, setSearch] = useSearchParams();
 
-    const [query, setQuery] = useState('');
+    const [inputData, setInputData] = useState(search.get('query') ?? '');
+    const [query, setQuery] = useState(search.get('query') ?? '');
 
-    const { rowsPerPage, orderBy, order, cursor, page } = useSelector(
+    const { rowsPerPage, orderBy, order, after, before, page } = useSelector(
         ({ repos }: { repos: TableState }) => repos,
     );
 
-    const { data, isLoading, refetch } = useGetRepositoriesByNameQuery({
-        name: `${query} in:name sort:${orderBy}-${order}` ?? '',
-        count: rowsPerPage,
-        after: cursor ?? null,
-    });
+    const rowsPerPageParam = search.get('rows');
 
-    console.log(data);
-
-    if (data?.data?.search?.repositoryCount) {
+    useEffect(() => {
         dispatch(
-            setRepositoryCount({
-                repositoryCount: data?.data?.search?.repositoryCount,
+            setTable({
+                rowsPerPage:
+                    search.get('rows') === null
+                        ? 10
+                        : parseInt(search.get('rows')!),
+                after: search.get('after') ?? null,
+                before: search.get('before') ?? null,
+                page:
+                    search.get('page') === null
+                        ? 0
+                        : parseInt(search.get('page')!),
+                order: search.get('order') === 'desc' ? 'desc' : 'asc',
+                orderBy: search.get('order') ?? 'name',
             }),
         );
-    }
+    }, []);
+
+    const count =
+        after === before || after
+            ? (rowsPerPage ?? parseInt(rowsPerPageParam!))
+            : null;
+    const last = before ? (rowsPerPage ?? parseInt(rowsPerPageParam!)) : null;
+
+    const { data, isLoading, refetch } = useGetRepositoriesByNameQuery({
+        name:
+            `${search.get('query') ?? ''} in:name sort:${search.get('orderBy') ?? orderBy}-${search.get('order') ?? order}` ??
+            '',
+        count: (count ?? count === last) ? rowsPerPage : 10,
+        after: (after === before ?? after) ? after : null,
+        before: before ?? null,
+        last,
+    });
 
     useEffect(() => {
-        refetch()
-            .then(() => console.log('data refetch successfully'))
-            .catch((e: Error) => console.log(`refetch error: ${e.message}`));
-    }, [rowsPerPage, orderBy, order, page]);
+        if (data?.data?.search?.repositoryCount) {
+            dispatch(
+                setRepositoryCount({
+                    repositoryCount: data?.data?.search?.repositoryCount,
+                }),
+            );
+        }
+    }, [data]);
 
     useEffect(() => {
+        if (query) {
+            refetch()
+                .then(() => console.log('data refetch successfully'))
+                .catch((e: Error) =>
+                    console.log(`refetch error: ${e.message}`),
+                );
+        }
+    }, [rowsPerPage, orderBy, order, page, after, before]);
+
+    const handleClick = () => {
+        setSearch((prev) => {
+            prev.set('query', inputData);
+            prev.set('after', '');
+            prev.set('before', '');
+            prev.set('page', '');
+            prev.set('orderBy', orderBy ?? 'name');
+            prev.set('order', order ?? 'desc');
+            return prev;
+        });
         setQuery(search.get('query') ?? '');
+
         if (!query) {
             dispatch(resetTable());
+        } else {
+            dispatch(
+                setTable({
+                    after: '',
+                    before: '',
+                    page: 0,
+                    rowsPerPage: rowsPerPage ?? 10,
+                    order: order ?? 'desc',
+                    orderBy: orderBy ?? 'name',
+                }),
+            );
         }
-    }, [search]);
 
-    // sort:forks-asc
-    // 1. sort:stars - сортировка по количеству звезд.
-    // 2. sort:forks - сортировка по количеству форков.
-    // 3. sort:updated - сортировка по дате последнего обновления.
-
-    // через graphql не получилось точно искать по имени репозитория, выдает репозитории и по другим полям (description, url, ...)
+        if (query) {
+            refetch()
+                .then(() => console.log('data refetch by button successfully'))
+                .catch((e: Error) =>
+                    console.log(`refetch error: ${e.message}`),
+                );
+        }
+    };
 
     return (
         <div>
@@ -65,16 +127,19 @@ export function Search() {
                     fullWidth
                     placeholder="Введите поисковый запрос"
                     className={classes.search__input}
-                    value={query}
-                    onChange={(e) =>
-                        setSearch((prev) => {
-                            prev.set('query', e.target.value);
-                            return prev;
-                        })
-                    }
+                    value={inputData}
+                    onChange={(e) => {
+                        setInputData(e.target.value || '');
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && handleClick()}
                 />
                 <div>
-                    <Button size="large" variant="contained" sx={{ ml: 1 }}>
+                    <Button
+                        size="large"
+                        variant="contained"
+                        sx={{ ml: 1 }}
+                        onClick={handleClick}
+                    >
                         искать
                     </Button>
                 </div>

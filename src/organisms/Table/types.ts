@@ -1,6 +1,8 @@
-import { ISeachQuery } from '../../store/types';
-
 export type Order = 'asc' | 'desc';
+export interface SelectedRepo {
+    owner: string;
+    repo: string;
+}
 
 export interface Data {
     id: string;
@@ -25,8 +27,4 @@ export interface EnhancedTableProps {
     order: Order;
     orderBy: string;
     rowCount: number;
-}
-
-export interface ISeachProps {
-    search: ISeachQuery;
 }

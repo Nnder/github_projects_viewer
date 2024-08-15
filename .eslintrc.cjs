@@ -33,5 +33,6 @@ module.exports = {
         'import/prefer-default-export': 'off',
         'react-hooks/exhaustive-deps': 'off',
         'no-param-reassign': 'off',
+        radix: 'off',
     },
 };

@@ -1,26 +1,10 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { IGitHubResponse, IRepoResponse, QueryParams } from './types';
+import { SelectedRepo } from '../organisms/Table/types';
 
 const token = import.meta.env.VITE_GITHUB_TOKEN as string;
 
-export const repositoryApi = createApi({
-    reducerPath: 'repositoryApi',
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'https://api.github.com/graphql',
-        prepareHeaders: (headers) => {
-            headers.set('Content-Type', 'application/json');
-            headers.set('Authorization', `bearer ${token}`);
-            return headers;
-        },
-    }),
-    tagTypes: ['Repository'],
-    endpoints: (builder) => ({
-        getRepositoriesByName: builder.query<IGitHubResponse, QueryParams>({
-            query: (q: QueryParams) => ({
-                url: 'https://api.github.com/graphql',
-                method: 'POST',
-                body: JSON.stringify({
-                    query: `query SearchRepositories($query: String!, $first: Int!, $after: String) {
+const nextQuery = `query SearchRepositories($query: String!, $first: Int!, $after: String) {
                 search(query: $query, type: REPOSITORY, first: $first, after: $after) {
                   repositoryCount
                   edges {
@@ -44,15 +28,71 @@ export const repositoryApi = createApi({
                     }
                   }
                   pageInfo {
-                    hasNextPage
                     endCursor
+                    hasNextPage
+                    startCursor
+                    hasPreviousPage
                   }
                 }
-              }`,
+              }`;
+
+const prevQuery = `query SearchRepositories($query: String!, $last: Int!, $before: String) {
+                search(query: $query, type: REPOSITORY, last: $last, before: $before) {
+                  repositoryCount
+                  edges {
+                    cursor
+                    node {
+                      ... on Repository {
+                        id
+                        name
+                        owner {
+                          login
+                        }
+                        url
+                        description
+                        stargazerCount
+                        forkCount
+                        pushedAt
+                        primaryLanguage {
+                          name
+                        }
+                      }
+                    }
+                  }
+                  pageInfo {
+                    endCursor
+                    hasNextPage
+                    startCursor
+                    hasPreviousPage
+                  }
+                }
+              }`;
+
+// получение данных с GitHub GraphQL api
+export const repositoryApi = createApi({
+    reducerPath: 'repositoryApi',
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'https://api.github.com/graphql',
+        prepareHeaders: (headers) => {
+            headers.set('Content-Type', 'application/json');
+            headers.set('Authorization', `bearer ${token}`);
+            return headers;
+        },
+    }),
+    tagTypes: ['Repository'],
+    endpoints: (builder) => ({
+        getRepositoriesByName: builder.query<IGitHubResponse, QueryParams>({
+            query: (q: QueryParams) => ({
+                url: 'https://api.github.com/graphql',
+                method: 'POST',
+                body: JSON.stringify({
+                    query: q.count ? nextQuery : prevQuery,
                     variables: {
                         query: q.name,
                         first: q.count,
                         after: q.after,
+                        before: q.before,
+                        last: q.last,
                     },
                 }),
             }),
@@ -60,9 +100,9 @@ export const repositoryApi = createApi({
 
         getRepositoryByName: builder.query<
             { data: { repository: IRepoResponse } },
-            { owner: string; name: string }
+            SelectedRepo
         >({
-            query: ({ owner, name }: { owner: string; name: string }) => ({
+            query: ({ owner, repo }: SelectedRepo) => ({
                 url: 'https://api.github.com/graphql',
                 method: 'POST',
                 body: JSON.stringify({
@@ -92,7 +132,7 @@ export const repositoryApi = createApi({
                         }`,
                     variables: {
                         owner,
-                        name,
+                        name: repo,
                     },
                 }),
             }),

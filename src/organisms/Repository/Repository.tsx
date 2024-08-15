@@ -1,30 +1,27 @@
-import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Star } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
 import { useGetRepositoryByNameQuery } from '../../store/repository';
+import { selectRow } from '../../store/tableSlice';
+import { SelectedRepo } from '../Table/types';
 
-export function Repository({ owner, repo }: { owner: string; repo: string }) {
-    const [search] = useSearchParams();
-
-    const { data, isLoading, refetch } = useGetRepositoryByNameQuery({
+// компонент репозитория
+// прокидываю в компоненты props которые подргружают данные о выбранном репозитории
+export function Repository({ owner, repo }: SelectedRepo) {
+    const dispatch = useDispatch();
+    const { data, isLoading } = useGetRepositoryByNameQuery({
         owner,
-        name: repo,
+        repo,
     });
 
     useEffect(() => {
-        refetch()
-            .then(() => console.log('fetch repo successfully'))
-            .catch((e: Error) => console.log(`refetch error: ${e.message}`));
-    }, [search]);
-
-    console.log(data);
+        dispatch(selectRow({ selected: { repo, owner } }));
+    }, []);
 
     return (
         <div>
-            {isLoading &&
-            search.get('owner') !== '' &&
-            search.get('repo') !== '' ? (
+            {isLoading && owner !== '' && repo !== '' ? (
                 <div>Loading...</div>
             ) : (
                 <Box sx={{ m: 3 }}>
@@ -41,12 +38,17 @@ export function Repository({ owner, repo }: { owner: string; repo: string }) {
                     >
                         <Box
                             sx={{
-                                background: '#2196F3',
-                                borderRadius: 10,
+                                background: 'rgba(33,150,243,1)',
+                                borderRadius: '100px',
                                 px: 1.5,
-                                py: 0.5,
+                                py: 1,
                                 color: '#fff',
                                 fontSize: 13,
+                                cursor: 'pointer',
+                                fontFamily: 'Roboto, sans-serif',
+                                '&:hover': {
+                                    background: 'rgba(33,130,243,1)',
+                                },
                             }}
                         >
                             {data?.data.repository.primaryLanguage?.name ?? '-'}
@@ -57,6 +59,7 @@ export function Repository({ owner, repo }: { owner: string; repo: string }) {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontSize: 14,
+                                fontFamily: 'Roboto, sans-serif',
                             }}
                         >
                             {' '}
@@ -74,13 +77,18 @@ export function Repository({ owner, repo }: { owner: string; repo: string }) {
                                         key={node.node.topic.name}
                                         sx={{
                                             background: 'rgba(0,0,0,0.08)',
-                                            borderRadius: 10,
+                                            borderRadius: '100px',
                                             px: 1.5,
-                                            py: 0.5,
+                                            py: 1,
                                             color: '#000',
                                             fontSize: 13,
                                             mr: 1,
                                             mb: 1,
+                                            fontFamily: 'Roboto, sans-serif',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                background: 'rgba(0,0,0,0.12)',
+                                            },
                                         }}
                                     >
                                         {node.node.topic.name || '-'}
