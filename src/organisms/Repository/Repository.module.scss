@@ -1,0 +1,58 @@
+$background: #f2f2f2;
+$font: #4f4f4f;
+
+.lang__wrapper {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 20px;
+    margin-bottom: 16px;
+
+    &_item {
+        background: rgba(33,150,243,1) !important;
+        border-radius: 100px;
+        padding: 8px 12px;
+        color: #fff;
+        font-size: 13px;
+        cursor: pointer;
+        &:hover {
+            background: rgba(33,130,243,1) !important;
+        }
+    }
+
+
+    &_counter {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+
+    }
+
+    &_icon {
+        font-size: 24px;
+        color: gold; 
+        padding-right: 8px;
+    }
+}   
+
+.topics__container {
+    display: flex; 
+    flex-wrap: wrap; 
+    margin-bottom: 8px;
+
+    &_item {
+        background: rgba(0,0,0,0.08);
+        border-radius: 100px;
+        padding: 8px 12px;
+        color: #000;
+        font-size: 13px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+        cursor: pointer;
+
+        &:hover {
+            background: rgba(0,0,0,0.12);
+        }
+    }
+}
+

@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux';
 import { useGetRepositoryByNameQuery } from '../../store/repository';
 import { selectRow } from '../../store/tableSlice';
 import { SelectedRepo } from '../Table/types';
-
+import classes from './Repository.module.scss';
 // компонент репозитория
 // прокидываю в компоненты props которые подргружают данные о выбранном репозитории
 function Repository({ owner, repo }: SelectedRepo) {
@@ -28,68 +28,24 @@ function Repository({ owner, repo }: SelectedRepo) {
                     <Typography sx={{ fontSize: 32 }}>
                         {data?.data.repository.name}
                     </Typography>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            pr: '20px',
-                            mb: 2,
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                background: 'rgba(33,150,243,1)',
-                                borderRadius: '100px',
-                                px: 1.5,
-                                py: 1,
-                                color: '#fff',
-                                fontSize: 13,
-                                cursor: 'pointer',
-                                fontFamily: 'Roboto, sans-serif',
-                                '&:hover': {
-                                    background: 'rgba(33,130,243,1)',
-                                },
-                            }}
-                        >
+                    <Box className={classes.lang__wrapper}>
+                        <Box className={classes.lang__wrapper_item}>
                             {data?.data.repository.primaryLanguage?.name ?? '-'}
                         </Box>
-                        <Box
-                            sx={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 14,
-                                fontFamily: 'Roboto, sans-serif',
-                            }}
-                        >
-                            {' '}
-                            <Star
-                                sx={{ fontSize: 24, color: 'gold', pr: 1 }}
-                            />{' '}
+                        <Box className={classes.lang__wrapper_counter}>
+                            <Star className={classes.lang__wrapper_icon} />
                             {data?.data.repository.stargazerCount ?? '0'}
                         </Box>
                     </Box>
                     <Box>
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', mb: 1 }}>
+                        <Box className={classes.topics__container}>
                             {data?.data.repository.repositoryTopics.edges.map(
                                 (node) => (
                                     <Box
                                         key={node.node.topic.name}
-                                        sx={{
-                                            background: 'rgba(0,0,0,0.08)',
-                                            borderRadius: '100px',
-                                            px: 1.5,
-                                            py: 1,
-                                            color: '#000',
-                                            fontSize: 13,
-                                            mr: 1,
-                                            mb: 1,
-                                            fontFamily: 'Roboto, sans-serif',
-                                            cursor: 'pointer',
-                                            '&:hover': {
-                                                background: 'rgba(0,0,0,0.12)',
-                                            },
-                                        }}
+                                        className={
+                                            classes.topics__container_item
+                                        }
                                     >
                                         {node.node.topic.name || '-'}
                                     </Box>

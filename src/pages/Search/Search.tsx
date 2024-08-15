@@ -12,7 +12,7 @@ import {
     setRepositoryCount,
     setTable,
 } from '../../store/tableSlice';
-import { LazyRepository } from '../../organisms/Repository/Table.lazy';
+import { LazyRepository } from '../../organisms/Repository/Repository.lazy';
 
 export function Search() {
     const dispatch = useDispatch();
